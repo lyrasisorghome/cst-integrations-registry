@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lyrasisorghome/cst-integrations-registry/blob/main/registry/schema.json",
+  "title": "IntegrationScenarioRecord",
+  "description": "A registry record describing a real-world integration involving one or more LYRASIS Community Supported Technologies (CSTs). Enums under $defs are copied from registry/vocabularies.yaml by scripts/sync_vocabularies.py; edit that file instead.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "source_system",
+    "target_system",
+    "integration_type",
+    "protocol",
+    "status",
+    "description",
+    "submitted_by",
+    "submitted_date"
+  ],
+  "properties": {
+    "id": {
+      "description": "System-generated UUID. Stable and permanent once assigned, and must match the filename (registry/scenarios/{id}.yaml).",
+      "$ref": "#/$defs/uuid"
+    },
+    "title": {
+      "description": "Short, descriptive name for the integration, e.g. 'ArchivesSpace digital object linking to DSpace via REST API'.",
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 200
+    },
+    "source_system": {
+      "description": "The system(s) where the integration originates or is initiated.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/system"
+      }
+    },
+    "target_system": {
+      "description": "The system(s) that receive data or expose endpoints consumed by the integration.",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/system"
+      }
+    },
+    "integration_type": {
+      "$ref": "#/$defs/integration_type"
+    },
+    "protocol": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/protocol"
+      }
+    },
+    "status": {
+      "description": "Active: in use at the submitting institution. Experimental: proof of concept. Deprecated: was active, no longer maintained. Retired and Recalled records are excluded from the public index.",
+      "$ref": "#/$defs/status"
+    },
+    "description": {
+      "description": "What the integration does, the problem it solves, and key implementation decisions. Markdown supported.",
+      "type": "string",
+      "minLength": 20
+    },
+    "submitted_by": {
+      "description": "Institution name of the submitter, optionally with a contact name.",
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 300
+    },
+    "submitted_date": {
+      "description": "System-generated submission timestamp (ISO 8601).",
+      "$ref": "#/$defs/dateTime"
+    },
+    "prerequisites": {
+      "description": "Software versions, permissions, configurations, or third-party tools required before the integration can be replicated.",
+      "type": "string"
+    },
+    "configuration_notes": {
+      "description": "Practical notes for replication: key configuration parameters, known gotchas, institution-specific decisions. Markdown supported.",
+      "type": "string"
+    },
+    "code_repository_url": {
+      "description": "Public code repository containing implementation code, scripts, or plugins.",
+      "$ref": "#/$defs/url"
+    },
+    "documentation_url": {
+      "description": "External documentation, wiki page, or technical write-up.",
+      "$ref": "#/$defs/url"
+    },
+    "related_spec_url": {
+      "description": "Formal technical specification (e.g. a LYRASIS Interoperability Project spec) that this implementation corresponds to.",
+      "$ref": "#/$defs/url"
+    },
+    "related_scenario_ids": {
+      "description": "IDs of other registry records that this scenario builds on, extends, or is related to.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/uuid"
+      }
+    },
+    "source_system_profile": {
+      "description": "Link to an IOI InfraFinder, COAR IRD, or other profile of the source system.",
+      "$ref": "#/$defs/url"
+    },
+    "target_system_profile": {
+      "description": "Link to an IOI InfraFinder, COAR IRD, or other profile of the target system.",
+      "$ref": "#/$defs/url"
+    },
+    "min_system_versions": {
+      "description": "Minimum versions of the source/target systems tested, e.g. ['ArchivesSpace 3.4', 'DSpace 7.3'].",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "def_system_versions": {
+      "description": "Main versions of the source/target systems tested, e.g. ['ArchivesSpace 3.5', 'DSpace 9.0'].",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "last_verified_date": {
+      "description": "Date the implementer last confirmed the integration was still operational.",
+      "$ref": "#/$defs/date"
+    },
+    "github_id": {
+      "description": "GitHub username to contact with follow-up questions.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$"
+    },
+    "license": {
+      "description": "SPDX license identifier or expression for the configuration notes and linked code, e.g. CC-BY-4.0, MIT, 'MIT OR Apache-2.0'.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.+:-]*(?: (?:AND|OR|WITH) [A-Za-z0-9][A-Za-z0-9.+:-]*)*$"
+    },
+    "tags": {
+      "description": "Free-text keywords for discovery, e.g. 'digitization workflow', 'finding aid'.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "updated_date": {
+      "description": "System-generated timestamp of the most recent edit.",
+      "$ref": "#/$defs/dateTime"
+    },
+    "edited_by": {
+      "description": "Name or username of the person who made the most recent edit.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "record_url": {
+      "description": "System-controlled canonical URL for this record (base URL + id).",
+      "$ref": "#/$defs/url"
+    },
+    "flagged": {
+      "description": "System-controlled. Set by a registry administrator when a record is under review for accuracy or policy issues.",
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "$defs": {
+    "system": {
+      "type": "string",
+      "enum": [
+        "ArchivesSpace",
+        "DSpace",
+        "CollectionSpace",
+        "VIVO",
+        "Fedora",
+        "Other"
+      ]
+    },
+    "integration_type": {
+      "type": "string",
+      "enum": [
+        "Linking",
+        "Deposit",
+        "Metadata Harvesting (OAI-PMH)",
+        "Search/Discovery",
+        "Bidirectional Sync",
+        "Other"
+      ]
+    },
+    "protocol": {
+      "type": "string",
+      "enum": [
+        "SWORD v2",
+        "SWORD v3",
+        "OAI-PMH v2",
+        "REST API",
+        "SPARQL",
+        "Custom/Bespoke",
+        "Other"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Active",
+        "Experimental",
+        "Deprecated",
+        "Retired",
+        "Recalled"
+      ]
+    },
+    "uuid": {
+      "description": "Lowercase canonical UUID.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

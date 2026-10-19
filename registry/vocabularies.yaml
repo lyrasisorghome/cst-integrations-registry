@@ -1,0 +1,60 @@
+# Controlled vocabularies for the CST Integrations Registry.
+#
+# This file is the single source of truth for every controlled list. To add or
+# change a value, edit this file (the GitHub web editor is fine) and open a
+# pull request. Automation copies these values into registry/schema.json, so
+# don't edit the enums there by hand.
+#
+# Renaming or removing a value can make existing records invalid. Prefer adding
+# new values, and check registry/scenarios/ before removing one.
+
+# Systems allowed in source_system and target_system.
+#   name: the value stored in records. Must be unique.
+#   team: the GitHub team in lyrasisorghome that's @mentioned when an Issue Form
+#         submission names this system. Optional; systems without a team use
+#         default_team.
+systems:
+  - name: ArchivesSpace
+    team: archivesspace-approvers
+  - name: DSpace
+    team: dspace-approvers
+  - name: CollectionSpace
+    team: collectionspace-approvers
+  - name: VIVO
+    team: vivo-approvers
+  - name: Fedora
+    team: fedora-approvers
+  - name: Other
+
+# Team @mentioned for "Other" and for any system without a team.
+default_team: registry-admins
+
+integration_types:
+  - Linking
+  - Deposit
+  - Metadata Harvesting (OAI-PMH)
+  - Search/Discovery
+  - Bidirectional Sync
+  - Other
+
+protocols:
+  - SWORD v2
+  - SWORD v3
+  - OAI-PMH v2
+  - REST API
+  - SPARQL
+  - Custom/Bespoke
+  - Other
+
+statuses:
+  - Active
+  - Experimental
+  - Deprecated
+  - Retired
+  - Recalled
+
+# Records with these statuses stay in the repository but are left out of
+# registry/index.json, so they don't appear in default search results.
+index_exclude_statuses:
+  - Retired
+  - Recalled

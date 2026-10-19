@@ -1,1 +1,3 @@
 working/
+.venv/
+__pycache__/
