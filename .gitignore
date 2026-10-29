@@ -1,3 +1,10 @@
 working/
 .venv/
 __pycache__/
+.pytest_cache/
+*.swp
+.swp
+*.code-workspace
+
+# Build output; published by the site workflow, not committed
+registry/index.json

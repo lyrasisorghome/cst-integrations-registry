@@ -1,0 +1,17 @@
+# Settings for the CST Integrations Registry's validation and publishing.
+
+# Canonical base URL of the registry website, without a trailing slash.
+# Each record's record_url is built from it as {base_url}/scenarios/{id}/
+# record_url isn't stored in the records, so changing this updates every link
+# the next time the site is published.
+# PLACEHOLDER: LYRASIS plans a lyrasis.org subdomain; the name isn't decided yet.
+base_url: https://registry.lyrasis.org
+
+# A new or changed record whose title is at least this similar (0 to 1,
+# normalized Levenshtein) to an Active or Experimental record gets a
+# possible-duplicate warning. Warnings never block a submission.
+duplicate_title_similarity: 0.85
+
+# If true, records with flagged: true are left out of the public index.
+# If false, they're published and the site shows them with a "flagged" notice.
+exclude_flagged_from_index: false

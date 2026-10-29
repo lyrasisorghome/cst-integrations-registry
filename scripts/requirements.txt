@@ -1,1 +1,2 @@
 pyyaml>=6.0
+jsonschema[format-nongpl]>=4.23
