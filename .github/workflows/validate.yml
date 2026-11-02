@@ -1,7 +1,12 @@
 # Validates the registry on every pull request and every push to main.
 #
-# There's no paths filter on purpose: this check will become required on main,
-# and a required check that doesn't run would leave unrelated PRs blocked.
+# There's no paths filter on purpose: this is a required check on main, and a
+# required check that doesn't run would leave unrelated PRs blocked.
+#
+# workflow_dispatch lets the Sync vocabularies workflow re-run this check after
+# it commits to a PR branch (commits made with GITHUB_TOKEN don't trigger
+# workflows). On pull requests, the problems found are uploaded for the Comment
+# on pull request workflow.
 
 name: Validate registry
 
@@ -9,6 +14,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -38,17 +44,36 @@ jobs:
         run: python scripts/sync_vocabularies.py --check
 
       # Duplicate warnings only cover records added or changed since the base
-      # commit, so look-alikes already in the registry aren't re-reported.
+      # commit, so look-alikes already in the registry aren't re-reported. A
+      # manual run on a branch compares against where it left main.
       - name: Validate scenario records
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
+          if [ -z "$BASE_SHA" ] && [ "$GITHUB_REF_NAME" != "$DEFAULT_BRANCH" ]; then
+            BASE_SHA=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD || true)
+          fi
+          args=()
+          if [ -n "$PR_NUMBER" ]; then
+            mkdir -p "$RUNNER_TEMP/report"
+            echo "$PR_NUMBER" > "$RUNNER_TEMP/report/pr_number"
+            args+=(--report "$RUNNER_TEMP/report/report.json")
+          fi
           if [ -n "$BASE_SHA" ] && git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
             mapfile -t changed < <(git diff --name-only --diff-filter=AMR "$BASE_SHA" HEAD -- registry/scenarios/)
-            python scripts/validate_registry.py --changed "${changed[@]}"
-          else
-            python scripts/validate_registry.py
+            args+=(--changed "${changed[@]}")
           fi
+          python scripts/validate_registry.py "${args[@]}"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        with:
+          name: validation-report
+          path: ${{ runner.temp }}/report/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Build index
         run: python scripts/build_index.py

@@ -1,0 +1,75 @@
+# Posts the Validate registry results as a comment on the pull request, and
+# updates that comment on later runs.
+#
+# Runs as a separate workflow (workflow_run) because pull requests from forks
+# get a read-only token. This workflow runs this repository's own code from
+# the default branch and only reads the uploaded report as data; it never
+# checks out or runs the pull request's code.
+
+name: Comment on pull request
+
+on:
+  workflow_run:
+    workflows: [Validate registry]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read # download the report from the Validate registry run
+  pull-requests: write
+
+jobs:
+  comment:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Missing if the run stopped before validating (e.g. a failing test).
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        id: download
+        continue-on-error: true
+        with:
+          name: validation-report
+          path: ${{ runner.temp }}/report
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Post or update the comment
+        if: steps.download.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          REPORT_DIR: ${{ runner.temp }}/report
+        run: |
+          pr=$(cat "$REPORT_DIR/pr_number")
+          if ! [[ "$pr" =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid pull request number in report"
+            exit 1
+          fi
+          # The report is untrusted: only comment if the PR's head is the commit
+          # that was validated. This also skips results for outdated commits.
+          if [ "$(gh api "repos/$REPO/pulls/$pr" --jq .head.sha)" != "$HEAD_SHA" ]; then
+            echo "PR #$pr has moved on from $HEAD_SHA; not commenting."
+            exit 0
+          fi
+
+          comment_id=$(gh api --paginate "repos/$REPO/issues/$pr/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- registry-validation -->"))) | .id' | head -n 1)
+          if [ -n "$comment_id" ]; then
+            python3 scripts/pr_comment.py "$REPORT_DIR/report.json" --run-url "$RUN_URL" > "$RUNNER_TEMP/comment.md"
+            gh api -X PATCH "repos/$REPO/issues/comments/$comment_id" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+            echo "Updated comment $comment_id on PR #$pr"
+          else
+            python3 scripts/pr_comment.py "$REPORT_DIR/report.json" --run-url "$RUN_URL" --skip-if-clean > "$RUNNER_TEMP/comment.md"
+            if [ -s "$RUNNER_TEMP/comment.md" ]; then
+              gh api "repos/$REPO/issues/$pr/comments" -F "body=@$RUNNER_TEMP/comment.md" > /dev/null
+              echo "Commented on PR #$pr"
+            else
+              echo "No problems and no earlier comment; nothing to post."
+            fi
+          fi

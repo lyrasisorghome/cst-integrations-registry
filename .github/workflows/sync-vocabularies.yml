@@ -1,0 +1,58 @@
+# When a pull request changes registry/vocabularies.yaml, copies the new values
+# into schema.json and the Issue Form dropdowns and commits them to the PR
+# branch, so administrators only ever edit vocabularies.yaml.
+#
+# This only works for branches in this repository (what the GitHub web editor
+# creates for administrators). Pull requests from forks get a failing Validate
+# registry check that says how to run the sync script instead.
+
+name: Sync vocabularies
+
+on:
+  pull_request:
+    paths: [registry/vocabularies.yaml]
+
+permissions:
+  contents: write # push the synced files to the PR branch
+  actions: write # re-run Validate registry on the new commit
+
+concurrency:
+  group: sync-vocabularies-${{ github.event.pull_request.number }}
+
+jobs:
+  sync:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+          cache: pip
+          cache-dependency-path: scripts/requirements*.txt
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Sync from vocabularies.yaml
+        run: python scripts/sync_vocabularies.py
+
+      # Commits pushed with GITHUB_TOKEN don't trigger workflows, so start the
+      # required Validate registry check on the new commit directly.
+      - name: Commit and re-run validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if git diff --quiet; then
+            echo "Already in sync; nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Sync schema and Issue Forms with vocabularies.yaml"
+          git push origin "HEAD:refs/heads/$HEAD_REF"
+          gh workflow run validate.yml --ref "$HEAD_REF"

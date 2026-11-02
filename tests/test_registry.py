@@ -1,11 +1,13 @@
 import json
 
 import pytest
+import yaml
 
+import pr_comment
 from build_index import build_index
 from registry_lib import SCHEMA_PATH, RegistryError, load_config, load_vocabularies, load_yaml
-from sync_vocabularies import render, synced_schema
-from validate_registry import duplicate_advisories, load_records, title_similarity
+from sync_vocabularies import issue_forms, render, synced_form, synced_schema
+from validate_registry import Problem, duplicate_advisories, load_records, title_similarity, write_report
 
 GOOD = """\
 id: {id}
@@ -139,3 +141,66 @@ def test_bad_config_is_rejected(tmp_path):
     with pytest.raises(RegistryError) as e:
         load_config(path)
     assert str(e.value).count("\n") == 1  # base_url and similarity; "no" is a YAML boolean
+
+
+FORM = """\
+name: Submit an integration
+body:
+  # Systems
+  - type: dropdown
+    id: source_system
+    attributes:
+      label: Source system(s)
+      multiple: true
+      options:
+        - ArchivesSpace
+  - type: dropdown
+    id: hosting
+    attributes:
+      label: Hosting
+      options:
+        - Hosted
+        - Self-hosted
+"""
+
+
+def test_form_dropdowns_sync_and_keep_the_rest():
+    vocab = load_vocabularies()
+    synced = synced_form(FORM, vocab)
+    form = yaml.safe_load(synced)
+    assert form["body"][0]["attributes"]["options"] == vocab["systems_values"]
+    assert form["body"][1]["attributes"]["options"] == ["Hosted", "Self-hosted"]
+    assert "# Systems" in synced
+    assert synced_form(synced, vocab) == synced
+
+
+def test_issue_forms_skip_chooser_config(tmp_path):
+    for name in ("config.yml", "submit.yml", "README.md"):
+        (tmp_path / name).write_text("")
+    assert [p.name for p in issue_forms(tmp_path)] == ["submit.yml"]
+    assert issue_forms(tmp_path / "missing") == []
+
+
+def test_report_round_trips_into_a_comment(tmp_path):
+    problems = [Problem("error", tmp_path / "a.yaml", "Schema error", "status: bad"),
+                Problem("warning", tmp_path / "b.yaml", "Possible duplicate", "Title is 90% similar")]
+    write_report(tmp_path / "report.json", problems, 2)
+    report = json.loads((tmp_path / "report.json").read_text())
+    body = pr_comment.render(report, "https://example.org/run")
+    assert body.startswith(pr_comment.MARKER)
+    assert "**1 error**" in body and "**1 warning**" in body
+    assert "Checked 2 records. [View the validation run](https://example.org/run)" in body
+
+
+def test_comment_neutralizes_untrusted_text():
+    report = {"record_count": 1, "problems": [
+        {"level": "warning", "path": "x`y.yaml", "title": "Possible duplicate",
+         "message": 'Similar to "[click](https://evil.example) @lyrasisorghome/registry-admins #1 <img>"'}]}
+    body = pr_comment.render(report)
+    assert "[click](" not in body and "<img>" not in body
+    assert "@lyrasisorghome" not in body and "#1" not in body
+    assert "`x'y.yaml`" in body
+
+
+def test_clean_report_comment():
+    assert "✅" in pr_comment.render({"record_count": 0, "problems": []})

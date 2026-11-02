@@ -11,10 +11,20 @@ SCHEMA_PATH = REGISTRY_DIR / "schema.json"
 VOCAB_PATH = REGISTRY_DIR / "vocabularies.yaml"
 CONFIG_PATH = REGISTRY_DIR / "config.yaml"
 INDEX_PATH = REGISTRY_DIR / "index.json"
+ISSUE_TEMPLATE_DIR = ROOT / ".github" / "ISSUE_TEMPLATE"
 
 # schema.json $defs name -> vocabularies.yaml key
 VOCAB_DEFS = {
     "system": "systems",
+    "integration_type": "integration_types",
+    "protocol": "protocols",
+    "status": "statuses",
+}
+
+# Issue Form dropdown id -> vocabularies.yaml key
+FORM_FIELDS = {
+    "source_system": "systems",
+    "target_system": "systems",
     "integration_type": "integration_types",
     "protocol": "protocols",
     "status": "statuses",

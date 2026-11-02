@@ -11,7 +11,8 @@ are (CI passes the files changed in a pull request, so long-standing look-alikes
 aren't reported on every PR).
 
 In GitHub Actions, problems are also printed as workflow annotations and a job
-summary, so they show up on the pull request.
+summary, so they show up on the pull request. --report writes them as JSON for
+the workflow that comments on the pull request (scripts/pr_comment.py).
 """
 
 import argparse
@@ -211,10 +212,20 @@ def report(problems, record_count):
     return 1 if errors else 0
 
 
+def write_report(path, problems, record_count):
+    data = {
+        "record_count": record_count,
+        "problems": [{"level": p.level, "path": rel(p.path), "title": p.title, "message": p.message}
+                     for p in problems],
+    }
+    Path(path).write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--changed", nargs="*", metavar="FILE",
                         help="only check these files for possible duplicates")
+    parser.add_argument("--report", metavar="FILE", help="also write the problems found to FILE as JSON")
     args = parser.parse_args()
 
     try:
@@ -229,6 +240,8 @@ def main():
         focus = [Path(f).stem for f in args.changed
                  if Path(f).suffix == ".yaml" and Path(f).resolve().parent == SCENARIOS_DIR.resolve()]
     problems += duplicate_advisories(records, focus, config["duplicate_title_similarity"])
+    if args.report:
+        write_report(args.report, problems, len(records))
     return report(problems, len(records))
 
 

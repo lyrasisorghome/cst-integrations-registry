@@ -1,2 +1,3 @@
 pyyaml>=6.0
+ruamel.yaml>=0.18
 jsonschema[format-nongpl]>=4.23
