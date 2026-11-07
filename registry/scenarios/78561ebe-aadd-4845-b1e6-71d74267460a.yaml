@@ -1,0 +1,10 @@
+id: 78561ebe-aadd-4845-b1e6-71d74267460a
+title: ArchivesSpace to DSpace digital object linking
+source_system: [ArchivesSpace]
+target_system: [DSpace]
+integration_type: Linking
+protocol: [REST API]
+status: Active
+description: Links ArchivesSpace digital objects to DSpace items so each points to the other.
+submitted_by: Test University
+submitted_date: 2026-11-02T12:00:00Z
