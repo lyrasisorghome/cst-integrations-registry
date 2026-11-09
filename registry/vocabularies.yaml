@@ -43,6 +43,7 @@ protocols:
   - OAI-PMH v2
   - REST API
   - SPARQL
+  - IIIF Presentation API
   - Custom/Bespoke
   - Other
 
