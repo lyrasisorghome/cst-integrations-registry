@@ -1,0 +1,7 @@
+# Settings for the "New issue" template chooser.
+# Blank issues stay enabled for questions and problems with the registry itself.
+blank_issues_enabled: true
+contact_links:
+  - name: Contributing guide
+    url: https://github.com/lyrasisorghome/cst-integrations-registry/blob/main/CONTRIBUTING.md
+    about: What to include in a submission, how review works, and who to contact.

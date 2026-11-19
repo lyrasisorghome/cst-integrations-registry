@@ -6,8 +6,8 @@ script copies its values into:
 
 - registry/schema.json: the enum of each vocabulary $def
 - .github/ISSUE_TEMPLATE/*.yml: the options of each Issue Form dropdown whose
-  id is in FORM_FIELDS (registry_lib.py). Other fields, comments, and
-  formatting are left alone.
+  id is in FORM_FIELDS (registry_lib.py), minus form_exclude_statuses for
+  status. Other fields, comments, and formatting are left alone.
 
 Run it after editing vocabularies.yaml. On pull requests from branches in this
 repository, the Sync vocabularies workflow runs it and commits the result. With
@@ -69,6 +69,8 @@ def synced_form(text, vocab):
         if item.get("type") != "dropdown" or key is None:
             continue
         values = vocab[f"{key}_values"]
+        if key == "statuses":
+            values = [v for v in values if v not in vocab.get("form_exclude_statuses", [])]
         attributes = item.setdefault("attributes", {})
         if list(attributes.get("options") or []) != values:
             attributes["options"] = list(values)
