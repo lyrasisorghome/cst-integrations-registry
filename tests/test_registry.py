@@ -5,7 +5,18 @@ import yaml
 
 import pr_comment
 from build_index import build_index
-from registry_lib import SCHEMA_PATH, RegistryError, load_config, load_vocabularies, load_yaml
+from registry_lib import (
+    FORM_FIELDS,
+    FORM_ONLY_FIELDS,
+    ISSUE_TEMPLATE_DIR,
+    SCHEMA_PATH,
+    SYSTEM_FIELDS,
+    VOCAB_PATH,
+    RegistryError,
+    load_config,
+    load_vocabularies,
+    load_yaml,
+)
 from sync_vocabularies import issue_forms, render, synced_form, synced_schema
 from validate_registry import Problem, duplicate_advisories, load_records, title_similarity, write_report
 
@@ -204,3 +215,41 @@ def test_comment_neutralizes_untrusted_text():
 
 def test_clean_report_comment():
     assert "✅" in pr_comment.render({"record_count": 0, "problems": []})
+
+
+def form_fields(path=ISSUE_TEMPLATE_DIR / "submit-integration.yml"):
+    """The submission form's fields (everything but markdown blocks), by id."""
+    return {item["id"]: item for item in load_yaml(path)["body"] if item["type"] != "markdown"}
+
+
+def test_form_covers_the_schema():
+    """Renaming or adding a schema field fails until the Issue Form matches."""
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    fields = form_fields()
+    assert set(fields) - FORM_ONLY_FIELDS == set(schema["properties"]) - SYSTEM_FIELDS
+    for name in set(schema["required"]) - SYSTEM_FIELDS:
+        assert fields[name].get("validations", {}).get("required") is True, f"{name} must be required"
+
+
+def test_form_vocabulary_fields_are_dropdowns():
+    fields = form_fields()
+    assert {i for i, f in fields.items() if f["type"] == "dropdown"} == set(FORM_FIELDS)
+    for name in ("source_system", "target_system", "protocol"):
+        assert fields[name]["attributes"].get("multiple") is True
+
+
+def test_form_leaves_out_admin_only_statuses():
+    vocab = load_vocabularies()
+    options = form_fields()["status"]["attributes"]["options"]
+    assert options == [s for s in vocab["statuses_values"] if s not in vocab["form_exclude_statuses"]]
+    assert "Recalled" not in options
+
+
+def test_form_must_offer_a_status(tmp_path):
+    text = VOCAB_PATH.read_text(encoding="utf-8")
+    old = "form_exclude_statuses:\n  - Retired\n  - Recalled\n"
+    assert old in text
+    path = tmp_path / "vocabularies.yaml"
+    path.write_text(text.replace(old, "form_exclude_statuses: [Active, Experimental, Deprecated, Retired, Recalled]\n"))
+    with pytest.raises(RegistryError, match="at least one status"):
+        load_vocabularies(path)

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/lyrasisorghome/cst-integrations-registry/blob/main/registry/schema.json",
   "title": "IntegrationScenarioRecord",
-  "description": "A registry record describing a real-world integration involving one or more LYRASIS Community Supported Technologies (CSTs). Enums under $defs are copied from registry/vocabularies.yaml by scripts/sync_vocabularies.py; edit that file instead.",
+  "description": "A registry record describing a real-world integration involving one or more Lyrasis Community Supported Technologies (CSTs). Enums under $defs are copied from registry/vocabularies.yaml by scripts/sync_vocabularies.py; edit that file instead.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -93,7 +93,7 @@
       "$ref": "#/$defs/url"
     },
     "related_spec_url": {
-      "description": "Formal technical specification (e.g. a LYRASIS Interoperability Project spec) that this implementation corresponds to.",
+      "description": "Formal technical specification (e.g. a Lyrasis Interoperability Project spec) that this implementation corresponds to.",
       "$ref": "#/$defs/url"
     },
     "related_scenario_ids": {

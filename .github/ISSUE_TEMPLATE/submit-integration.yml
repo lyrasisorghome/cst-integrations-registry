@@ -1,0 +1,234 @@
+# Issue Form for submitting an integration scenario.
+#
+# Safe to edit: name, description, title, labels, every label/description/
+# placeholder, and the markdown blocks. Reword them freely.
+#
+# Don't change: the id of any field. Automation reads submissions by id, and
+# each id matches a field in registry/schema.json (a test checks this).
+#
+# Don't edit the dropdown options for source_system, target_system,
+# integration_type, protocol, or status. They're copied from
+# registry/vocabularies.yaml by scripts/sync_vocabularies.py, so edit that
+# file instead.
+
+name: Submit an integration scenario
+description: Share an integration you've built that involves a Lyrasis Community Supported Technology.
+title: "[Integration]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your work! Each submission becomes a public record in the registry after an approver from the relevant community reviews it.
+
+        Everything you enter here is **public**. Don't include passwords, API keys, or internal URLs. See the [contributing guide](https://github.com/lyrasisorghome/cst-integrations-registry/blob/main/CONTRIBUTING.md) for what to include and who to contact with questions.
+
+        Only fields marked with a red asterisk are required. You can update the record later.
+
+  # About the integration
+  - type: input
+    id: title
+    attributes:
+      label: Integration name
+      description: A short, descriptive name (5 to 200 characters).
+      placeholder: ArchivesSpace digital object linking to DSpace via REST API
+    validations:
+      required: true
+
+  - type: input
+    id: submitted_by
+    attributes:
+      label: Institution
+      description: The institution that built or runs the integration, optionally with a contact name.
+      placeholder: Example University Libraries (Jane Doe)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      description: "Active: in use at your institution. Experimental: a proof of concept or pilot. Deprecated: was in use but is no longer maintained."
+      options:
+        - Active
+        - Experimental
+        - Deprecated
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What the integration does, the problem it solves, and key implementation decisions. At least 20 characters. Markdown is supported.
+    validations:
+      required: true
+
+  # Systems and protocols
+  - type: dropdown
+    id: source_system
+    attributes:
+      label: Source system(s)
+      description: Where the integration starts. Choose "Other" for a system not listed, and name it in the description.
+      multiple: true
+      options:
+        - ArchivesSpace
+        - DSpace
+        - CollectionSpace
+        - VIVO
+        - Fedora
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_system
+    attributes:
+      label: Target system(s)
+      description: The system(s) that receive data or provide the endpoints the integration uses.
+      multiple: true
+      options:
+        - ArchivesSpace
+        - DSpace
+        - CollectionSpace
+        - VIVO
+        - Fedora
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: integration_type
+    attributes:
+      label: Integration type
+      options:
+        - Linking
+        - Deposit
+        - Metadata Harvesting (OAI-PMH)
+        - Search/Discovery
+        - Bidirectional Sync
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: protocol
+    attributes:
+      label: Protocol(s)
+      multiple: true
+      options:
+        - SWORD v2
+        - SWORD v3
+        - OAI-PMH v2
+        - REST API
+        - SPARQL
+        - Custom/Bespoke
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: min_system_versions
+    attributes:
+      label: Minimum versions tested
+      description: The oldest versions of each system the integration is known to work with, one per line.
+      placeholder: |
+        ArchivesSpace 3.4
+        DSpace 7.3
+
+  - type: textarea
+    id: def_system_versions
+    attributes:
+      label: Main versions in use
+      description: The versions of each system you run it with, one per line.
+      placeholder: |
+        ArchivesSpace 3.5
+        DSpace 9.0
+
+  # Replicating it
+  - type: textarea
+    id: prerequisites
+    attributes:
+      label: Prerequisites
+      description: Software, permissions, configuration, or third-party tools someone needs before they can replicate this.
+
+  - type: textarea
+    id: configuration_notes
+    attributes:
+      label: Configuration notes
+      description: Practical notes for replicating it, such as key settings, known gotchas, and decisions specific to your institution. Markdown is supported.
+
+  - type: input
+    id: code_repository_url
+    attributes:
+      label: Code repository URL
+      description: A public repository with the code, scripts, or plugins.
+      placeholder: https://github.com/example/aspace-dspace-linker
+
+  - type: input
+    id: documentation_url
+    attributes:
+      label: Documentation URL
+      description: A wiki page, write-up, or other documentation.
+
+  - type: input
+    id: related_spec_url
+    attributes:
+      label: Related specification URL
+      description: A formal specification this implements, such as a Lyrasis Interoperability Project spec.
+
+  - type: input
+    id: source_system_profile
+    attributes:
+      label: Source system profile URL
+      description: An IOI InfraFinder, COAR IRD, or similar profile of the source system.
+
+  - type: input
+    id: target_system_profile
+    attributes:
+      label: Target system profile URL
+      description: An IOI InfraFinder, COAR IRD, or similar profile of the target system.
+
+  # Finding and maintaining it
+  - type: textarea
+    id: tags
+    attributes:
+      label: Keywords
+      description: Words or phrases that would help someone find this, one per line.
+      placeholder: |
+        digitization workflow
+        finding aid
+
+  - type: textarea
+    id: related_scenario_ids
+    attributes:
+      label: Related registry records
+      description: IDs of registry records this builds on or relates to, one per line. You can find a record's ID on its page in the registry.
+
+  - type: input
+    id: last_verified_date
+    attributes:
+      label: Last verified
+      description: The date you last confirmed the integration still works, as YYYY-MM-DD.
+      placeholder: "2026-11-01"
+
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: An SPDX license identifier for your configuration notes and linked code, such as CC-BY-4.0 or MIT.
+      placeholder: CC-BY-4.0
+
+  - type: input
+    id: github_id
+    attributes:
+      label: GitHub username for questions
+      description: Who to contact with follow-up questions. Leave blank to use your own username.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Before you submit
+      options:
+        - label: This submission doesn't include passwords, API keys, internal URLs, or other private information.
+          required: true
+        - label: I searched the registry and this integration isn't already listed.

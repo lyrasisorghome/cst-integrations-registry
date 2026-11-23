@@ -30,6 +30,13 @@ FORM_FIELDS = {
     "status": "statuses",
 }
 
+# Record fields the Issue Form doesn't ask for, because automation or
+# administrators set them.
+SYSTEM_FIELDS = {"id", "submitted_date", "updated_date", "edited_by", "record_url", "flagged"}
+
+# Issue Form fields that aren't record fields.
+FORM_ONLY_FIELDS = {"confirmations"}
+
 
 class RegistryError(Exception):
     """A problem with the registry's own configuration files."""
@@ -94,13 +101,17 @@ def load_vocabularies(path=VOCAB_PATH):
     if not (isinstance(data.get("default_team"), str) and data["default_team"].strip()):
         errors.append("default_team: must be a non-empty string")
 
-    excluded = data.get("index_exclude_statuses", [])
-    if not isinstance(excluded, list):
-        errors.append("index_exclude_statuses: must be a list")
-    else:
-        unknown = [s for s in excluded if s not in data.get("statuses_values", [])]
+    statuses = data.get("statuses_values", [])
+    for key in ("index_exclude_statuses", "form_exclude_statuses"):
+        excluded = data.get(key, [])
+        if not isinstance(excluded, list):
+            errors.append(f"{key}: must be a list")
+            continue
+        unknown = [s for s in excluded if s not in statuses]
         if unknown:
-            errors.append(f"index_exclude_statuses: not in statuses: {unknown}")
+            errors.append(f"{key}: not in statuses: {unknown}")
+        elif key == "form_exclude_statuses" and statuses and set(statuses) <= set(excluded):
+            errors.append(f"{key}: must leave at least one status for the Issue Form")
 
     if errors:
         raise RegistryError("\n".join(errors))

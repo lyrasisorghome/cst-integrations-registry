@@ -58,3 +58,9 @@ statuses:
 index_exclude_statuses:
   - Retired
   - Recalled
+
+# Statuses left out of the Issue Form's dropdown, so only administrators and
+# approvers set them (Recalled marks records under review for spam or harm).
+form_exclude_statuses:
+  - Retired
+  - Recalled
