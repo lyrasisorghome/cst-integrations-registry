@@ -12,7 +12,7 @@
 # file instead.
 
 name: Submit an integration scenario
-description: Share an integration you've built that involves a LYRASIS Community Supported Technology.
+description: Share an integration you've built that involves a Lyrasis Community Supported Technology.
 title: "[Integration]: "
 body:
   - type: markdown
@@ -174,7 +174,7 @@ body:
     id: related_spec_url
     attributes:
       label: Related specification URL
-      description: A formal specification this implements, such as a LYRASIS Interoperability Project spec.
+      description: A formal specification this implements, such as a Lyrasis Interoperability Project spec.
 
   - type: input
     id: source_system_profile

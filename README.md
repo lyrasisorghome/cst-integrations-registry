@@ -1,10 +1,10 @@
 # CST Integrations Registry
 
-A public, community-maintained registry of real-world integrations involving the LYRASIS Community Supported Technologies (CSTs): **ArchivesSpace, DSpace, CollectionSpace, VIVO, and Fedora**. It covers integrations between two CSTs and between a CST and an outside system.
+A public, community-maintained registry of real-world integrations involving the Lyrasis Community Supported Technologies (CSTs): **ArchivesSpace, DSpace, CollectionSpace, VIVO, and Fedora**. It covers integrations between two CSTs and between a CST and an outside system.
 
 Institutions often solve the same interoperability problems independently. This registry gives practitioners one place to share what they've built and to find what others have already done. Each record describes what an integration does, how it works, and how someone else could replicate it. Records link out to code, documentation, and specifications rather than hosting them.
 
-> **Status:** Under active development (Phase I). Implements the [Integration Scenario Registry specification (F1)](https://github.com/lyrasisorghome/InteroperabilityProject/issues/58) from the LYRASIS Interoperability Project.
+> **Status:** Under active development (Phase I). Implements the [Integration Scenario Registry specification (F1)](https://github.com/lyrasisorghome/InteroperabilityProject/issues/58) from the Lyrasis Interoperability Project.
 
 ## How it works
 
@@ -41,7 +41,7 @@ User and administrator documentation will cover submitting and updating records,
 
 ## Governance
 
-The registry's administrative home is the LYRASIS Organizational Home for Community Supported Technologies. Product ownership is shared with the CST community product teams and community volunteers. Each community appoints its own registry approvers.
+The registry's administrative home is the Lyrasis Organizational Home for Community Supported Technologies. Product ownership is shared with the CST community product teams and community volunteers. Each community appoints its own registry approvers.
 
 ## Roadmap
 

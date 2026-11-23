@@ -4,7 +4,7 @@
 # Each record's record_url is built from it as {base_url}/scenarios/{id}/
 # record_url isn't stored in the records, so changing this updates every link
 # the next time the site is published.
-# PLACEHOLDER: LYRASIS plans a lyrasis.org subdomain; the name isn't decided yet.
+# PLACEHOLDER: Lyrasis plans a lyrasis.org subdomain; the name isn't decided yet.
 base_url: https://registry.lyrasis.org
 
 # A new or changed record whose title is at least this similar (0 to 1,

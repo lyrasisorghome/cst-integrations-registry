@@ -2,7 +2,7 @@
 
 Thanks for sharing your work. This guide covers what to include in a submission, how to submit, and what happens next. The Issue Form and the pull request template link here, so this page is the place to update submission guidance.
 
-<!-- TODO(LYRASIS): Replace the placeholder text in "Terms" and "Questions" with final wording. -->
+<!-- TODO(Lyrasis): Replace the placeholder text in "Terms" and "Questions" with final wording. -->
 
 ## What to include
 
@@ -44,12 +44,12 @@ To update a record later, open a pull request that edits its file, or open an is
 
 ## Terms
 
-<!-- TODO(LYRASIS): Terms of use for submissions. -->
+<!-- TODO(Lyrasis): Terms of use for submissions. -->
 
 By submitting, you confirm that you have the right to share this information and that it can be published publicly. Licensing for your notes and linked code is set by the record's `license` field.
 
 ## Questions
 
-<!-- TODO(LYRASIS): Contact for questions about the registry. -->
+<!-- TODO(Lyrasis): Contact for questions about the registry. -->
 
 Open an issue in this repository.
